@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>🕌 Zakat & Fitrana Calculator</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+  <style>
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateX(-20px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes pulse {
+      0%, 100% { transform: scale(1); }
+      50% { transform: scale(1.05); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    .slide-in {
+      animation: slideIn 0.6s ease-out forwards;
+    }
+    .pulse {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    .bounce {
+      animation: bounce 0.4s ease-in-out 2;
+    }
+    .input-focus {
+      transition: all 0.3s ease;
+    }
+    .input-focus:focus {
+      border-color: #059669;
+      box-shadow: 0 0 0 3px rgba(5, 150, 105, 0.2);
+    }
+    .bg-islamic-pattern {
+      background-image: linear-gradient(rgba(255,255,255,0.9), rgba(255,255,255,0.9)), 
+                        url('data:image/svg+xml,%3Csvg width="40" height="40" viewBox="0 0 40 40" xmlns="http://www.w3.org/2000/svg"%3E%3Cg fill="%23059669" fill-opacity="0.1" fill-rule="evenodd"%3E%3Cpath d="M0 0h40v40H0z"/%3E%3Cpath d="M20 0c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm0 32c-2.2 0-4 1.8-4 4s1.8 4 4 4 4-1.8 4-4-1.8-4-4-4zm20-16c0-2.2-1.8-4-4-4s-4 1.8-4 4 1.8 4 4 4 4-1.8 4-4zM4 20c0-2.2-1.8-4-4-4s-4 1.8-4 4 1.8 4 4 4 4-1.8 4-4z"/%3E%3C/g%3E%3C/svg%3E');
+    }
+    .calligraphy {
+      font-family: 'Noto Naskh Arabic', sans-serif;
+    }
+  </style>
+</head>
+<body class="min-h-screen bg-gradient-to-br from-green-100 to-teal-200 flex items-center justify-center p-4">
+  <div class="container bg-islamic-pattern rounded-2xl shadow-2xl p-8 max-w-md w-full transform transition-all hover:scale-105">
+    <h2 class="text-3xl font-bold text-center text-green-900 mb-4 calligraphy">🕌 Zakat & Fitrana Calculator 🌙</h2>
+    <p class="text-center text-gray-700 mb-6 text-lg">Enter amounts to discover your charity amounts 🤲</p>
+
+    <!-- Currency Selector -->
+    <div class="mb-6 slide-in" style="animation-delay: 0.1s;">
+      <label class="block text-lg font-medium text-gray-800 mb-2">💸 Choose Currency</label>
+      <select id="currency" class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none text-lg bg-white/80 backdrop-blur-sm">
+        <option value="₹">India (₹)</option>
+        <option value="₨">Pakistan (₨)</option>
+      </select>
+    </div>
+
+    <!-- Fitrana Section -->
+    <div class="mb-6 slide-in" style="animation-delay: 0.2s;">
+      <label class="block text-lg font-medium text-gray-800 mb-2">🤲 Fitrana (for each person)</label>
+      <input type="number" id="fitranaRate" value="250" min="0" step="1"
+        class="w-full px-4 py-3 border border-gray300 rounded-xl input-focus focus:outline-none text-lg bg-white/80 backdrop-blur-sm"
+        placeholder="e.g. 250">
+      <p class="text-sm text-gray-600 mt-1">Enter amount for one person</p>
+    </div>
+
+    <div class="mb-6 slide-in" style="animation-delay: 0.3s;">
+      <label class="block text-lg font-medium text-gray-800 mb-2">👨‍👩‍👧 Number of People</label>
+      <input type="number" id="peopleCount" value="1" min="1" step="1"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none text-lg bg-white/80 backdrop-blur-sm"
+        placeholder="e.g. 1">
+      <p class="text-sm text-gray-600 mt-1">How many people in your family?</p>
+    </div>
+
+    <!-- Zakat Section -->
+    <div class="mb-6 slide-in" style="animation-delay: 0.4s;">
+      <label class="block text-lg font-medium text-gray-800 mb-2">💰 Total Money (cash, gold, etc.)</label>
+      <input type="number" id="totalWealth" min="0" step="1"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none text-lg bg-white/80 backdrop-blur-sm"
+        placeholder="e.g. 150000">
+      <p class="text-sm text-gray-600 mt-1">Add all your money, gold, silver</p>
+    </div>
+
+    <!-- Ushar Section -->
+    <div class="mb-6 slide-in" style="animation-delay: 0.5s;">
+      <label class="block text-lg font-medium text-gray-800 mb-2">🌾 Crop Type</label>
+      <select id="cropType"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none text-lg bg-white/80 backdrop-blur-sm">
+        <option value="0">No Crops (0%)</option>
+        <option value="10">Crops watered by rain (10%)</option>
+        <option value="5">Crops watered by canal or tube well (5%)</option>
+      </select>
+      <p class="text-sm text-gray-600 mt-1">Choose if you have crops and how they get water</p>
+    </div>
+
+    <div class="mb-6 slide-in" style="animation-delay: 0.6s;">
+      <label class="block text-lg font-medium text-gray-800 mb-2">🌱 Crop Value</label>
+      <input type="number" id="cropYield" min="0" step="1"
+        class="w-full px-4 py-3 border border-gray-300 rounded-xl input-focus focus:outline-none text-lg bg-white/80 backdrop-blur-sm"
+        placeholder="e.g. 50000">
+      <p class="text-sm text-gray-600 mt-1">Enter total value of your crops (if any)</p>
+    </div>
+
+    <!-- Calculate Button -->
+    <button onclick="calculateZakat()"
+      class="w-full py-3 bg-gradient-to-r from-green-600 to-emerald-600 text-white rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all duration-300 text-lg font-semibold transform hover:scale-105 pulse">
+      Calculate Now 🕋
+    </button>
+
+    <!-- Result Section -->
+    <div id="resultBox" class="hidden bg-gradient-to-r from-green-50 to-teal-50 p-6 rounded-xl border-l-4 border-green-600 mt-6 fade-in shadow-lg">
+      <p class="text-xl font-bold text-green-900 mb-3 calligraphy">MashaAllah! Your Charity Amounts 🎉</p>
+      <p id="fitranaOutput" class="text-lg text-gray-800 font-medium mb-2 slide-in" style="animation-delay: 0.1s;"></p>
+      <p id="zakatOutput" class="text-lg text-gray-800 font-medium mb-2 slide-in" style="animation-delay: 0.2s;"></p>
+      <p id="usharOutput" class="text-lg text-gray-800 font-medium mb-2 slide-in" style="animation-delay: 0.3s;"></p>
+      <p id="quoteOutput" class="text-base text-gray-700 italic mt-3 calligraphy slide-in" style="animation-delay: 0.4s;"></p>
+    </div>
+  </div>
+
+  <script>
+    // Array of Islamic quotes
+    const islamicQuotes = [
+      "🌙 'The best charity is that given in Ramadan.' – Prophet Muhammad (PBUH)",
+      "🕌 'Charity does not decrease wealth.' – Prophet Muhammad (PBUH)",
+      "🤲 'Give charity without delay, for it stands in the way of calamity.' – Prophet Muhammad (PBUH)",
+      "🌟 'The believer’s shade on the Day of Resurrection will be his charity.' – Hadith",
+      "💖 'A kind word and charity are better than charity followed by injury.' – Quran 2:263",
+      "🕋 'Those who spend in charity will be richly rewarded.' – Quran 57:7",
+      "🌱 'Charity is a purifier of wealth.' – Hadith"
+    ];
+
+    function getRandomQuote() {
+      return islamicQuotes[Math.floor(Math.random() * islamicQuotes.length)];
+    }
+
+    function triggerConfetti() {
+      confetti({
+        particleCount: 100,
+        spread: 70,
+        origin: { y: 0.6 },
+        colors: ['#059669', '#34d399', '#a7f3d0']
+      });
+    }
+
+    function calculateZakat() {
+      // Get input values
+      const fitranaRate = parseFloat(document.getElementById('fitranaRate').value) || 0;
+      const people = parseInt(document.getElementById('peopleCount').value) || 1;
+      const totalWealth = parseFloat(document.getElementById('totalWealth').value) || 0;
+      const cropRate = parseFloat(document.getElementById('cropType').value);
+      const cropYield = parseFloat(document.getElementById('cropYield').value) || 0;
+      const currency = document.getElementById('currency').value;
+
+      // Input validation
+      if (fitranaRate < 0 || people < 1 || totalWealth < 0 || cropYield < 0) {
+        alert('Please enter correct numbers. No negative values allowed.');
+        return;
+      }
+
+      // Calculations
+      const fitrana = fitranaRate * people;
+      const zakat = totalWealth * 0.025;
+      const ushar = cropYield * (cropRate / 100);
+
+      // Display results
+      document.getElementById('fitranaOutput').innerText = `🤲 Fitrana: ${currency}${fitrana.toFixed(2)}`;
+      document.getElementById('zakatOutput').innerText = `💰 Zakat (2.5%): ${currency}${zakat.toFixed(2)}`;
+      
+      const usharOutput = document.getElementById('usharOutput');
+      if (cropRate === 0) {
+        usharOutput.style.display = 'none';
+      } else {
+        usharOutput.style.display = 'block';
+        usharOutput.innerText = `🌾 Ushar (${cropRate}%): ${currency}${ushar.toFixed(2)}`;
+      }
+
+      // Display random quote
+      document.getElementById('quoteOutput').innerText = getRandomQuote();
+      
+      const resultBox = document.getElementById('resultBox');
+      resultBox.style.display = 'block';
+      resultBox.classList.remove('fade-in', 'bounce');
+      void resultBox.offsetWidth; // Trigger reflow for animation
+      resultBox.classList.add('fade-in', 'bounce');
+
+      // Trigger confetti celebration
+      triggerConfetti();
+    }
+
+    // Real-time input feedback
+    document.querySelectorAll('input, select').forEach(element => {
+      element.addEventListener('input', () => {
+        element.classList.add('pulse');
+        setTimeout(() => element.classList.remove('pulse'), 1500);
+      });
+    });
+  </script>
+</body>
+</html>
